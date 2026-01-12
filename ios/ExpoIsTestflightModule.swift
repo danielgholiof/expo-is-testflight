@@ -25,4 +25,8 @@ public class ExpoIsTestflightModule: Module {
     // Source: https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles#Profile-location
     return isSandboxEnv && !hasEmbeddedMobileProvision()
   }
+  
+  private func hasEmbeddedMobileProvision() -> Bool {
+    return (Bundle.main.path(forResource: "embedded", ofType: "mobileprovision") != nil)
+  }
 }
