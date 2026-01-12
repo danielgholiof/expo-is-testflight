@@ -8,7 +8,7 @@ public class ExpoIsTestflightModule: Module {
     Name("ExpoIsTestflight")
 
     Function("isTestFlight") { () -> Bool in
-      return !isRunningFromTestFlight()
+      return isRunningFromTestFlight()
     }
   }
 
