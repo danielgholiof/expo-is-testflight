@@ -1,48 +1,28 @@
 import ExpoModulesCore
-
+import StoreKit
 public class ExpoIsTestflightModule: Module {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
   public func definition() -> ModuleDefinition {
     // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
     // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
     // The module will be accessible from `requireNativeModule('ExpoIsTestflight')` in JavaScript.
     Name("ExpoIsTestflight")
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Double.pi
+    Function("isTestFlight") { () -> Bool in
+      return !isRunningFromTestFlight()
     }
+  }
 
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
+  private func isRunningFromTestFlight() -> Bool {
+    #if targetEnvironment(simulator)
+    return false
+    #endif
 
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      return "Hello world! 👋"
-    }
+    // For apps distributed through TestFlight or intalled from Xcode the receipt file is named "StoreKit/sandboxReceipt"
+    // instead of "StoreKit/receipt"
+    let isSandboxEnv = Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
 
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { (value: String) in
-      // Send an event to JavaScript.
-      self.sendEvent("onChange", [
-        "value": value
-      ])
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of the
-    // view definition: Prop, Events.
-    View(ExpoIsTestflightView.self) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { (view: ExpoIsTestflightView, url: URL) in
-        if view.webView.url != url {
-          view.webView.load(URLRequest(url: url))
-        }
-      }
-
-      Events("onLoad")
-    }
+    // Apps distributed through TestFlight or the App Store will not have an embedded provisioning profile
+    // Source: https://developer.apple.com/documentation/technotes/tn3125-inside-code-signing-provisioning-profiles#Profile-location
+    return isSandboxEnv && !hasEmbeddedMobileProvision()
   }
 }
