@@ -1,1 +1,3 @@
-export { default } from './ExpoIsTestflightModule';
+import ExpoIsTestflightModule from './ExpoIsTestflightModule';
+
+export const isTestFlight = ExpoIsTestflightModule.isTestFlight();
